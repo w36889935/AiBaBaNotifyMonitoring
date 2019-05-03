@@ -1,23 +1,18 @@
 package com.mytest.xmpaytest;
 
 import android.annotation.SuppressLint;
-import android.content.ComponentName;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 import com.mytest.xmpaytest.config.ConfigurationProperties;
 import com.mytest.xmpaytest.data.Account;
 import com.mytest.xmpaytest.data.User;
@@ -27,7 +22,34 @@ import com.qmuiteam.qmui.widget.dialog.QMUITipDialog;
 
 import java.util.Map;
 
+/**
+ * 登陆主界面
+ */
 public class MainActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        /**获得用户连接对象**/
+        SQLiteDatabase usersData = getConnection("Users");
+        /**判断是否存在用户信息**/
+        if(isRecord(usersData)){
+            selete();
+            Intent intent = new Intent(MainActivity.this,Main2Activity.class);
+            startActivity(intent);
+        }
+
+        /**按钮监控**/
+        Button loginButton = (Button) findViewById(R.id.login);
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /**登陆**/
+               Login(mHandler);
+            }
+        });
+    }
 
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
@@ -51,73 +73,33 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        if(isRecord(getConnection("Users"))){
-            selete();
-            Intent intent = new Intent(MainActivity.this,Main2Activity.class);
-            startActivity(intent);
-        }
-
-        //按钮监控
-        Button btn1 = (Button) findViewById(R.id.login);
-        btn1.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                if(isEnabled()){
-                    Login(mHandler);
-                }else{
-                    getNotification();
-                    Toast.makeText(MainActivity.this,"请授权通知权限！",Toast.LENGTH_LONG).show();
-                }
-            }
-
-        });
-    }
-
-    //数据库查询
-    private void selete(){
-        SQLiteDatabase sqliteDatabase = getConnection("Users");
-        Cursor cursor = sqliteDatabase.query("Users", new String[] { "userID",
-                "apiKey","userBalance","userName"}, null, null, null, null, "ID desc","0,1");
-        while (cursor.moveToNext()) {
-            ConfigurationProperties.USER_ID = cursor.getString(cursor.getColumnIndex("userID"));
-            ConfigurationProperties.APIKEY = cursor.getString(cursor.getColumnIndex("apiKey"));
-        }
-
-        SQLiteDatabase sqliteDatabaseAccounts = getConnection("Accounts");
-        Cursor cursorAccounts = sqliteDatabaseAccounts.query("Accounts", new String[] { "accountType",
-                "accountNO"}, "AccountStatus=?", new String[] { "1" }, null, null, "ID desc","0,2");
-        while (cursorAccounts.moveToNext()) {
-            if(cursorAccounts.getString(cursorAccounts.getColumnIndex("accountType")).equals("101")){
-                ConfigurationProperties.ALI_ACCOUNTNO =  cursorAccounts.getString(cursorAccounts.getColumnIndex("accountNO"));
-            }
-        }
-    }
-
-    //登陆
+    /**
+     * 登陆
+     * @param mHandler 消息处理对象
+     * @return 
+     * @throws 
+     **/
     private void Login(Handler mHandler){
-        LoginServer LoginServer = new LoginServer(mHandler);
-        EditText userName = findViewById(R.id.usename);//账号
-        EditText passWord = (EditText)findViewById(R.id.password);//密码
-        String message = ""; //消息
-        message = LoginServer.Login(userName.getText().toString(),passWord.getText().toString());
-        if(message.length()>1){
-            new QMUITipDialog.Builder(MainActivity.this)
-                    .setIconType(3)
-                    .setTipWord(message)
-                    .create(true)
-                    .show();
-        }
+        /**获得账号**/
+        String userName = ((EditText)findViewById(R.id.usename)).getText().toString();
+        /**获得密码**/
+        String passWord = ((EditText)findViewById(R.id.password)).getText().toString();
+        /**创建登陆服务**/
+        LoginServer LoginServer = new LoginServer(mHandler,MainActivity.this);
+        /**登陆**/
+        LoginServer.Login(userName,passWord);
     }
 
-    //初始数据
+    /**
+     * 初始数据
+     * @param user 用户实体对象
+     * @return
+     * @throws
+     */
     private void initData(User user){
+        /**获得用户连接对象**/
         SQLiteDatabase sqliteUsersDatabase = getConnection("Users");
+        /**获得账户连接对象**/
         SQLiteDatabase sqliteAccountsDatabase = getConnection("Accounts");
 
         ContentValues values = new ContentValues();
@@ -138,41 +120,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //判断是否打开了通知监听权限
-    private boolean isEnabled() {
-        String pkgName = getPackageName();
-        final String flat = Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");
-        if (!TextUtils.isEmpty(flat)) {
-            final String[] names = flat.split(":");
-            for (int i = 0; i < names.length; i++) {
-                final ComponentName cn = ComponentName.unflattenFromString(names[i]);
-                if (cn != null) {
-                    if (TextUtils.equals(pkgName, cn.getPackageName())) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    //获取监听权限
-    private void getNotification(){
-        try {
-            Intent intent;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-                intent = new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS);
-            } else {
-                intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
-            }
-            startActivity(intent);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    //判断是否存在账号记录
+    /**
+     * 方法说明 判断是否存在账号记录
+     * @param
+     * @return
+     * @throws
+     */
     private Boolean isRecord(SQLiteDatabase sqliteDatabase){
+        /**查询用户表是否存在以登陆用户的信息**/
         Cursor cursor = sqliteDatabase.query("Users", new String[] { "ID",
                 "userID"},null, null, null, null, null);
         if(cursor.getCount()>0){
@@ -182,9 +137,40 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    //返回连接
+    /**
+     * 方法说明 返回连接
+     * @param
+     * @return
+     * @throws
+     */
     private SQLiteDatabase getConnection(String tableName){
         SQLiteOpenHelper dbHelper = new DatabaseInitialization(MainActivity.this,tableName,null,1);
         return dbHelper.getReadableDatabase();
     }
+
+    /**
+     * 方法说明 数据库查询
+     * @param
+     * @return
+     * @throws
+     */
+    private void selete(){
+        SQLiteDatabase sqliteDatabase = getConnection("Users");
+        Cursor cursor = sqliteDatabase.query("Users", new String[] { "userID",
+                "apiKey","userBalance","userName"}, null, null, null, null, "ID desc","0,1");
+        while (cursor.moveToNext()) {
+            ConfigurationProperties.USER_ID = cursor.getString(cursor.getColumnIndex("userID"));
+            ConfigurationProperties.APIKEY = cursor.getString(cursor.getColumnIndex("apiKey"));
+        }
+
+        SQLiteDatabase sqliteDatabaseAccounts = getConnection("Accounts");
+        Cursor cursorAccounts = sqliteDatabaseAccounts.query("Accounts", new String[] { "accountType",
+                "accountNO"}, "AccountStatus=?", new String[] { "1" }, null, null, "ID desc","0,2");
+        while (cursorAccounts.moveToNext()) {
+            if(cursorAccounts.getString(cursorAccounts.getColumnIndex("accountType")).equals("101")){
+                ConfigurationProperties.ALI_ACCOUNTNO =  cursorAccounts.getString(cursorAccounts.getColumnIndex("accountNO"));
+            }
+        }
+    }
+
 }
