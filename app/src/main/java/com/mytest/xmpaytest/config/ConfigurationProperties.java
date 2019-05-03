@@ -1,7 +1,5 @@
 package com.mytest.xmpaytest.config;
 
-import com.mytest.xmpaytest.MainActivity;
-
 import java.util.ArrayList;
 import java.util.List;
 

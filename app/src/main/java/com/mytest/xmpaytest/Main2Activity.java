@@ -19,4 +19,9 @@ public class Main2Activity extends AppCompatActivity {
         UpdateConnection updateConnection = new UpdateConnection();
         updateConnection.init();
     }
+
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();禁止其返回
+    }
 }

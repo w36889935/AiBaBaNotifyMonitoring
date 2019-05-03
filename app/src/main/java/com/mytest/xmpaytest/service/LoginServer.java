@@ -5,23 +5,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Handler;
-import android.os.Message;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.widget.Toast;
-import com.mytest.xmpaytest.MainActivity;
-import com.mytest.xmpaytest.data.User;
-import com.mytest.xmpaytest.pojo.HttpRespons;
 import com.mytest.xmpaytest.thread.LoginThread;
 import com.mytest.xmpaytest.util.CheckTools;
 import com.mytest.xmpaytest.util.HttpRequester;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.*;
 
-import com.alibaba.fastjson.JSON;
 import com.qmuiteam.qmui.widget.dialog.QMUITipDialog;
 
 /**

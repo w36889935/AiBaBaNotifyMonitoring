@@ -25,18 +25,18 @@ import java.util.Map;
 /**
  * 登陆主界面
  */
-public class MainActivity extends AppCompatActivity {
+public class LoginMainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.login_activity_main);
         /**获得用户连接对象**/
         SQLiteDatabase usersData = getConnection("Users");
         /**判断是否存在用户信息**/
         if(isRecord(usersData)){
             selete();
-            Intent intent = new Intent(MainActivity.this,Main2Activity.class);
+            Intent intent = new Intent(LoginMainActivity.this,Main2Activity.class);
             startActivity(intent);
         }
 
@@ -58,20 +58,25 @@ public class MainActivity extends AppCompatActivity {
             super.handleMessage(msg);
             if (msg.what == 2 || msg.what ==3) {
                 Map<String ,Object> messages = (Map<String, Object>) msg.obj;
-                new QMUITipDialog.Builder(MainActivity.this)
+                new QMUITipDialog.Builder(LoginMainActivity.this)
                         .setIconType(msg.what)
                         .setTipWord(messages.get("messags").toString())
                         .create(true)
                         .show();
                 if( msg.what == 2){
                     initData((User)messages.get("user"));
-                    Intent intent = new Intent(MainActivity.this,Main2Activity.class);
+                    Intent intent = new Intent(LoginMainActivity.this,Main2Activity.class);
                     startActivity(intent);
                     selete();
                 }
             }
         }
     };
+
+    @Override
+    public void onBackPressed() {
+        //super.onBackPressed();禁止其返回
+    }
 
     /**
      * 登陆
@@ -85,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         /**获得密码**/
         String passWord = ((EditText)findViewById(R.id.password)).getText().toString();
         /**创建登陆服务**/
-        LoginServer LoginServer = new LoginServer(mHandler,MainActivity.this);
+        LoginServer LoginServer = new LoginServer(mHandler,LoginMainActivity.this);
         /**登陆**/
         LoginServer.Login(userName,passWord);
     }
@@ -144,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
      * @throws
      */
     private SQLiteDatabase getConnection(String tableName){
-        SQLiteOpenHelper dbHelper = new DatabaseInitialization(MainActivity.this,tableName,null,1);
+        SQLiteOpenHelper dbHelper = new DatabaseInitialization(LoginMainActivity.this,tableName,null,1);
         return dbHelper.getReadableDatabase();
     }
 
