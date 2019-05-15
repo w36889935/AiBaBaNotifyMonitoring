@@ -5,7 +5,7 @@ import android.service.notification.StatusBarNotification;
 import com.mytest.xmpaytest.util.RegularUtil;
 
 /**
- * 类说明
+ * 通知栏消息获取
  *
  * @author 王伟
  * @title notificationcollectorservice

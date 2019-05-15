@@ -49,7 +49,7 @@ public class PayRequest {
             this.amount = URLEncoder.encode(amount, "utf-8");
             this.status = URLEncoder.encode("成功", "utf-8");
             this.account = URLEncoder.encode(account, "utf-8");
-            this.todo = "up";
+            this.todo = "alipay";
             this.ts = "25";
             this.ua = URLEncoder.encode("Mozilla%2f5.0%2520(Windows%2520NT%252010.0%3b%2520Win64%3b%2520x64)%2520AppleWebKit%2f537.36%2520(KHTML%2c%2520like%2520Gecko)%2520Chrome%2f61.0.3163.100%2520Safari%2f537.36  Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36","utf-8");
             this.type = URLEncoder.encode(type, "utf-8");
