@@ -40,4 +40,16 @@ public class ConfigurationProperties {
         /**本地订单处理表**/
         INIT_TABLE.add("create table Orders(ID integer primary key autoincrement,OrderID varchar(64),OrderTime varchar(64),Status varchar(64),CallbackResult varchar(64))");
     }
+
+    /**支付宝包名**/
+    public static String ALI_PAI_PAGE= "com.eg.android.AlipayGphone";
+    /**微信包名**/
+    public static String WEI_PAI_PAGE= "com.eg.android.AlipayGphone";
+    /**通知标题**/
+    public static String NOTIFICATION_TITLE= "android.title";
+    /**支付宝标题内容**/
+    public static String ALI_CONTENT= "支付宝通知";
+    /**微信标题内容**/
+    public static String WEI_CONTENT= "微信支付";
+
 }

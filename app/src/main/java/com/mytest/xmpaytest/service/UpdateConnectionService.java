@@ -14,21 +14,20 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 更新网关心跳
+ * 更新监听状态
  *
  * @author 王伟
- * @title UpdateConnection
+ * @title UpdateConnectionService
  * @package com.mytest.mytest.util
  * @date 2019年03月06日 22:05
  * @version 版本号 Copyright (c)  2014
  * Company 湖南慧明达信息技术有限公司
  */
-public class UpdateConnection {
+public class UpdateConnectionService {
     /**
      * 线程池
      */
     static ScheduledExecutorService service = new ScheduledThreadPoolExecutor(10);
-
     /**
      * 启动定时线程
      */

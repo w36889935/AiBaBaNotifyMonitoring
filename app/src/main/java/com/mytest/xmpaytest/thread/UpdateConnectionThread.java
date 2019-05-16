@@ -1,5 +1,7 @@
 package com.mytest.xmpaytest.thread;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.mytest.xmpaytest.config.ConfigurationProperties;
 import com.mytest.xmpaytest.pojo.HttpRespons;
 import com.mytest.xmpaytest.util.HttpRequester;
@@ -27,23 +29,24 @@ public class UpdateConnectionThread implements Runnable {
      * 请求参数
      */
     static Map<String, String> params = new HashMap<>();
-
     static {
         requester.setDefaultContentEncoding("utf-8");
         params.put("todo","timePost");
         params.put("v",ConfigurationProperties.VERSION);
         params.put("ts","0");
         params.put("count","1");
+        params.put("type","101");
+        params.put("account",ConfigurationProperties.ALI_ACCOUNTNO);
+        params.put("userid",ConfigurationProperties.USER_ID);
     }
 
     @Override
     public void run() {
-        params.put("type","101");
-        params.put("account",ConfigurationProperties.ALI_ACCOUNTNO);
-        params.put("userid",ConfigurationProperties.USER_ID);
         try {
             String returnResult  = requester.sendGet(ConfigurationProperties.URL,params).getContent();
-            System.out.println(returnResult);
+            /**转换为Json对象**/
+            JSONObject jsonObject = JSON.parseObject(returnResult);
+            System.out.println(jsonObject.toJSONString());
         } catch (IOException e) {
             e.printStackTrace();
         }

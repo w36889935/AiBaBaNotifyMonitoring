@@ -3,13 +3,10 @@ package com.mytest.xmpaytest;
 import com.mytest.xmpaytest.config.ConfigurationProperties;
 import com.mytest.xmpaytest.pojo.HttpRespons;
 import com.mytest.xmpaytest.pojo.PayRequest;
-import com.mytest.xmpaytest.service.PaymentNotice;
 import com.mytest.xmpaytest.util.HttpRequester;
 import org.junit.Test;
 
 import java.io.IOException;
-
-import static org.junit.Assert.*;
 
 /**
  * Example local unit test, which will execute on the development machine (host).

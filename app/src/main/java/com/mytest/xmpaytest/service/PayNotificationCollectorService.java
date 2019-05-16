@@ -2,6 +2,8 @@ package com.mytest.xmpaytest.service;
 
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
+import com.mytest.xmpaytest.config.ConfigurationProperties;
+import com.mytest.xmpaytest.thread.PaymentNotice;
 import com.mytest.xmpaytest.util.RegularUtil;
 
 /**
@@ -19,28 +21,27 @@ public class PayNotificationCollectorService extends NotificationListenerService
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
         RegularUtil regularUtil = new RegularUtil();
-        String money = "";
-        if(
-                "com.eg.android.AlipayGphone".equals(sbn.getPackageName()) &&
-                "支付宝通知".equals(sbn.getNotification().extras.get("android.title"))
-                ){
-            money = regularUtil.getMoney(sbn, ".*成功收款(.*)元.*");
-            System.out.println(money);
-            if(money != null){
-                PaymentNotice paymentNotice = new PaymentNotice(true,money);
-                Thread thread2 = new Thread(paymentNotice);
-                thread2.start();
+        /**金额**/
+        String money;
+        /**支付类型**/
+        Boolean payType;
+
+        //判断是否为支付通知
+        if(ConfigurationProperties.ALI_PAI_PAGE.equals(sbn.getPackageName()) ||  ConfigurationProperties.WEI_PAI_PAGE.equals(sbn.getPackageName())){
+            if(ConfigurationProperties.WEI_CONTENT.equals(sbn.getNotification().extras.get(ConfigurationProperties.NOTIFICATION_TITLE))){
+                payType = false;
+                money = regularUtil.getMoney(sbn, ".*微信支付收款(.*)元.*");
+            }else if(ConfigurationProperties.ALI_CONTENT.equals(sbn.getNotification().extras.get(ConfigurationProperties.NOTIFICATION_TITLE))){
+                payType = true;
+                money = regularUtil.getMoney(sbn, ".*成功收款(.*)元.*");
+            }else{
+                return;
             }
-        }else if(
-                sbn.getPackageName().equals("com.tencent.mm") &&
-                sbn.getNotification().extras.get("android.title").equals("微信支付")
-                ){
-            money = regularUtil.getMoney(sbn, ".*微信支付收款(.*)元.*");
             System.out.println(money);
-            PaymentNotice paymentNotice = new PaymentNotice(false,money);
-            Thread thread2 = new Thread(paymentNotice);
-            thread2.start();
-        }else {
+            PaymentNotice paymentNotice = new PaymentNotice(payType,money);
+            Thread PayNotificationThread = new Thread(paymentNotice);
+            PayNotificationThread.start();
+        }else{
             System.out.println("其他通知");
         }
     }
@@ -48,6 +49,7 @@ public class PayNotificationCollectorService extends NotificationListenerService
     @Override
     public void onNotificationRemoved(StatusBarNotification sbn) {
         //移除通知
+        System.out.println("移除通知");
     }
 
 }
